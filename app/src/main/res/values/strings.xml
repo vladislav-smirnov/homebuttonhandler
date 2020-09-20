@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">HomebuttonHandler</string>
+    <string name="disable_mode">Disable mode</string>
 </resources>

@@ -1,28 +1,20 @@
 package io.github.airdaydreamers.homebuttonhandler
 
-import android.app.UiModeManager
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import io.github.airdaydreamers.homebuttonhandler.viewmodels.HomeViewModel
 import io.github.airdaydreamers.homebuttonhandler.viewmodels.SavedStateViewModel
 
-class HomeActivity : AppCompatActivity() {
+class OverviewActivity : AppCompatActivity() {
     private var mSavedStateViewModel: SavedStateViewModel? = null
     private var mHomeViewModel: HomeViewModel? = null
 
-    private lateinit var mUiModeManager: UiModeManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
-
-        //region work with view
-        findViewById<Button>(R.id.disable_mode_button).setOnClickListener { disableMode() }
-        //endregion
+        setContentView(R.layout.activity_overview)
 
         // Obtain the ViewModel
         //region is not google way
@@ -41,27 +33,16 @@ class HomeActivity : AppCompatActivity() {
         ).get(HomeViewModel::class.java)
         //endregion
 
-        //Enable car mode
-        mUiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-        mUiModeManager.enableCarMode(UiModeManager.ENABLE_CAR_MODE_GO_CAR_HOME)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        mSavedStateViewModel?.saveActivityState(1)//TODO: change to const or emum or
-        mHomeViewModel?.setActiveState(1)//TODO: change to const or emum or
+        mSavedStateViewModel?.getActivityState()?.observe(this, {
+            if (it == 0) {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finishAndRemoveTask()
+            }
+        })
     }
 
     override fun onStop() {
         super.onStop()
-
-        mSavedStateViewModel?.saveActivityState(0) //TODO: change to const or emum or
-        mHomeViewModel?.setActiveState(0) //TODO: change to const or emum or
-    }
-
-    fun disableMode() {
-        //disable car mode
-        mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME)
+        finishAndRemoveTask() //Need to remove from recently stack at moment.
     }
 }
